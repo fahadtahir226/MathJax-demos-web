@@ -1,42 +1,62 @@
-# [reveal-steps.html](https://mathjax.github.io/MathJax-demos-web/reveal-steps.html)
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>MathJax example</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
 
-This example shows how to use the Javascript and CSS ids to display an equation that reveals the steps in a computation one step at a time.  The expression uses the `\cssId` macro to mark the parts of the expression to be revealed, and sets the CSS for those ids to be hidden initially.  A javascript function tied to a button sets the styles for the individual elements to reveal them one at a time.
+<body>
+  <h4>Formula:<h4>
+    <p>\(a^2 - b^2\) = (a + b)(a - b) </p>
+  <h4>Derivation: </h4>
+    <p>
 
-The expression is given in TeX as
+      \begin{align}
+        (a^2 - b^2)                             \\[3px]
+        &\cssId{Step1}{= aa - bb <=  As\ we\ know\ x^2 = x^1 * x^1}               \\[3px]
+        &\cssId{Step2}{= aa - bb + ab - ab <= Adding\ and\ subtracting\ a*b\ as\ we\ know\ the\ sum\ is\ 0}          \\[3px]
+        &\cssId{Step3}{= aa + ab - bb - ab <= Rearranging\ for\ taking\ common }          \\[3px]
+        &\cssId{Step4}{= a(a+b)-b(b+a) <= Taking\ a\ as\ common\ from\ first\ two\ and\ b\ from\ second\ two\  }       \\[3px]
+        &\cssId{Step5}{= (a-b)(a+b) <= Taking\ a+b\ common\ as\ we\ know\ a+b\ =\ b+a\  }
+      \end{align}
+</p>
+  <!-- <p>When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are</p> -->
 
-```
-\begin{align}
-  (x+1)^2
-    &= \cssId{Step1}{(x+1)(x+1)}             \\[3px]
-    &\cssId{Step2}{ {} = x(x+1) + 1(x+1)}    \\[3px]
-    &\cssId{Step3}{ {} = (x^2+x) + (x+1)}    \\[3px]
-    &\cssId{Step4}{ {} = x^2 + (x + x) + 1}  \\[3px]
-    &\cssId{Step5}{ {} = x^2 + 2x + 1}
-\end{align}
-```
+<div>
+  <button onclick=ShowStep() id='step'>Next Step</button>  
+  <button onclick=ResetSteps() id="reset">Reset Step</button>
+</div>
 
-The key lines of code are
-
-```
-  <script type="text/javascript">
+</body>
+<script type="text/javascript">
   //
   //  Use a closure to hide the local variable
   //
   (function () {
     var n = 1;
-
     //
     //  Make the current step be visible, and increment the step.
     //  If it is the last step, disable the step button.
     //  Once a step is taken, the reset button is made available.
     //
     window.ShowStep = function () {
-      document.getElementById("Step" + n++).style.visibility = "visible";
-      if (!document.getElementById("Step" + n)) {
-        document.getElementById("step").disabled = true;
-      }
+// To open the reset button after first step
       document.getElementById("reset").disabled = false;
+
+// To add next step
+      document.getElementById("Step" + n++).style.display = "inline";
+
+// To Display Current and hide previous Details
+      document.getElementById("detail"+ n).style.display = "inline";
+      if(document.getElementById("detail" + (n - 1)))
+      document.getElementById("detail"+ (n - 1)).style.display = "none";
     }
+
 
     //
     //  Enable the step button and disable the reset button.
@@ -47,18 +67,13 @@ The key lines of code are
       document.getElementById("reset").disabled = true;
       var i = 1, step; n = 1;
       while (step = document.getElementById("Step" + i)) {
-        step.style.visibility = "hidden";
+        step.style.display = "none";
         i++
       }
     }
   })();
   </script>
-```
-
-This example also shows how to prevent the page from being displayed until after MathJax has completed its processing.  That means that there will be no flashing of the unprocessed math before the typeset math is displayed.  This is accomplished with the configuration
-
-```
-  <script>
+<script>
   MathJax = {
     tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]},
     chtml: {
@@ -74,14 +89,12 @@ This example also shows how to prevent the page from being displayed until after
         //  When that is all done, un-hide the page
         //
         MathJax.startup.promise.then(function () {
-          document.getElementById("hidden").disabled = true;
+          ResetSteps();
+          document.getElementById("reset").disabled = true;
         });
       }
     }
   };
   </script>
-```
 
-which waits for MathJax to finish its initial typesetting, and then disables the stylesheet that is hiding the page body.
-
-[Run the example](https://mathjax.github.io/MathJax-demos-web/reveal-steps.html)
+</html>
